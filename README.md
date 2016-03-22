@@ -8,7 +8,7 @@ Clean:<br>
 
 Go: <br>
 
-bin/lab 
+bin/lab<br>
 bin/lab --mode=std<br>
 bin/lab --mode=pipe<br>
 bin/lab --mode=posix amount=5<br>
