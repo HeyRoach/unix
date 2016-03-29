@@ -4,20 +4,18 @@
 #include <unistd.h>
 #include <signal.h>
 
-int signal_counter = 0;
+//	char *mas_sig[];
 
 void posix_handler(int signal, siginfo_t *siginfo, void *context) {
 
-	if(signal_counter==0)
-		printf("parent table:\n #\tpid\tparent\tsigno\tvalue\n");
-
 	fprintf(stderr, " %i\t%i\t%i\t%i\t%i\n",
-		signal_counter, siginfo->si_pid, getpid(), signal, siginfo->si_value.sival_int);
+		siginfo->si_pid, getpid(), signal, siginfo->si_value.sival_int);
 
-	signal_counter++;
+
 }
 
 void posix(int amount) {
+
 	printf("posix mode started\n");
 
 	struct sigaction sa;
@@ -29,7 +27,10 @@ void posix(int amount) {
 
 		int i;
 		for (i = SIGRTMIN; i < SIGRTMAX; i++) {
-			sigaction(i, &sa, NULL);
+			if(sigaction(i, &sa, NULL)==-1){
+			perror("Error: ");
+			exit( EXIT_FAILURE);
+			}
 		}
 
 		while(1){
@@ -46,15 +47,26 @@ void posix(int amount) {
 		printf("child table:\n #\tpid\tparent\tsigno\tvalue\n");
 
 		sigset_t mask;
-		sigfillset(&mask);
-		sigprocmask(SIG_BLOCK, &mask, NULL);
+		if(sigfillset(&mask)==-1){
+			perror("Error: ");
+			exit(EXIT_FAILURE);
+		}
+		if(sigprocmask(SIG_BLOCK, &mask, NULL)==-1){
+			perror("Error: ");
+			exit(EXIT_FAILURE);
+		}
 
 		int k = 0;
 		for (k = 0; k < amount; k++) {
 			random_signo = rand()%(SIGRTMAX-SIGRTMIN) + SIGRTMIN;
 			value.sival_int = rand()%100 + 1;
 
-			sigqueue(getppid(), random_signo, value);
+			if(sigqueue(getppid(), random_signo, value)==-1)
+			{
+				perror("Error: ");
+ 		 	    exit(EXIT_FAILURE);
+
+			}
 
 			printf(" %i\t%i\t%i\t%i\t%i\n",
 				k, getpid(), getppid(), random_signo, value.sival_int);

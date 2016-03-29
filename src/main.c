@@ -65,12 +65,11 @@ int main(int argc, char *argv[], char **environ) {
 		}
 		posix(amount);
 	}
-	else if (!strcmp(mode, "kill")){
-		if(!signal || !pid){
-			fprintf(stderr, "Error: invalid signal or pid\n");
-			exit( EXIT_FAILURE );
-		}
-		kill(pid, signal);
+		else if(!strcmp(mode,"kill")){
+			if(kill(pid, signal)==-1){
+				perror("Error: ");
+				exit(EXIT_FAILURE);
+					}
 	}else{
 		fprintf(stderr, "Error: incorrect mode\n");
 		exit( EXIT_FAILURE );
