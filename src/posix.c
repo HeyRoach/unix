@@ -3,18 +3,30 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <string.h>
 
-//	char *mas_sig[];
+int signal_counter = 0;
+
+typedef struct tag_name {
+	int sig_pid;
+    int curpid;
+    int sig_no;
+    int value;
+}sig_income;
+sig_income *signals_info;
 
 void posix_handler(int signal, siginfo_t *siginfo, void *context) {
 
-	fprintf(stderr, " %i\t%i\t%i\t%i\t%i\n",
-		siginfo->si_pid, getpid(), signal, siginfo->si_value.sival_int);
-
+	//	fprintf(stderr, " %i\t%i\t%i\t%i\t%i\n",
+	//		siginfo->si_pid, getpid(), signal, siginfo->si_value.sival_int);
+		sig_income cursignal = { siginfo->si_pid,getpid(),signal,siginfo->si_value.sival_int};
+		signals_info[signal_counter] = cursignal;
+		signal_counter++;
 
 }
 
 void posix(int amount) {
+	signals_info = (sig_income*)malloc(amount*sizeof(sig_income));
 
 	printf("posix mode started\n");
 
@@ -34,10 +46,15 @@ void posix(int amount) {
 		}
 
 		while(1){
-			sleep(1);
-			if(signal_counter==amount)
-				exit( EXIT_SUCCESS );
-		}
+				if(signal_counter==amount){
+					sleep(1);
+					printf("parent table:\n #\tpid\tparent\tsigno\tvalue\n");
+					for (i = 0; i < amount; i++) {
+						fprintf(stderr, " %i\t%i\t%i\t%i\t%i\n", i, signals_info[i].sig_pid, signals_info[i].curpid, signals_info[i].sig_no, signals_info[i].value);
+					}
+					exit( EXIT_SUCCESS );
+				}
+			}
 
 	}else{
 		union sigval value;
