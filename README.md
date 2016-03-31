@@ -11,6 +11,6 @@ Go: <br>
 bin/lab<br>
 bin/lab --mode=std<br>
 bin/lab --mode=pipe<br>
-bin/lab --mode=posix amount=5<br>
+bin/lab --mode=posix --amount=5<br>
 bin/lab --mode=child<br>
 bin/lab --mode=kill --signal=1 --pid=N<br><br>
